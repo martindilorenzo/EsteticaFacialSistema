@@ -27,7 +27,6 @@ const resolvers = {
         nuevoUsuario: async (_, {input} ) => {            
             const { email, password} = input;
 
-            //Revisar si usuario esta registrado
             const existeUsuario = await Usuario.findOne({email});
             if (existeUsuario) {
                 throw new Error('El usuario ya esta registrado');
