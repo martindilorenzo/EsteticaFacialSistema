@@ -33,7 +33,7 @@ const resolvers = {
             }
         },
 
-        obtenerProducto: async(_, {id}) =>{
+        obtenerProducto: async(_, {id}) => {
             //revisar si producto existe
             const producto = await Producto.findById(id);
             if (!producto){
@@ -41,8 +41,16 @@ const resolvers = {
             }
 
             return producto;
-        }
+        },
 
+        obtenerClientes: async() => {
+            try {
+                const clientes = await Cliente.find({});
+                return clientes;
+            } catch (error) {
+                console.log(error);
+            }
+        }
     },
 
     Mutation: {
