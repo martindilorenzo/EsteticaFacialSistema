@@ -1,5 +1,6 @@
 const Usuario = require('../models/Usuario');
 const Producto = require('../models/Producto');
+const Cliente = require('../models/Cliente');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: 'variables.env'});
@@ -97,7 +98,7 @@ const resolvers = {
             if (existeProducto){
                 throw new Error('Existe otro producto con el mismo nombre');
             }
-            console.log(existeProducto);
+            //console.log(existeProducto);
 
             try {
                 const producto = new Producto(input);
@@ -135,6 +136,26 @@ const resolvers = {
             await Producto.findByIdAndDelete({_id: id});
 
             return "El producto ha sido eliminado";
+        },
+
+        nuevoCliente: async(_, {input}) => {
+            //revisar si cliente ya existe
+            
+            const {nombre, apellido} = input;
+            const existeCliente = await Cliente.findOne({nombre, apellido});
+            if (existeCliente) {
+                throw new Error('El cliente ya esta registrado');
+            }
+
+            //guardar en db
+            try {
+                const nuevoCliente = new Cliente(input);
+                const resultado = nuevoCliente.save();
+
+                return resultado;
+            } catch (error) {
+                console.log(error);
+            }
         }
 
 

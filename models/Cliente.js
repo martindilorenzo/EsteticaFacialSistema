@@ -17,6 +17,7 @@ const ClientesSchema = mongoose.Schema({
     },
     telefono: {
         type: String,
+        required: true,
         trim: true
     },
     medicacion: {
@@ -27,7 +28,7 @@ const ClientesSchema = mongoose.Schema({
         type: String,
         trim: true
     },
-    uñas: {
+    unas: {
         type: String,
         trim: true
     },
