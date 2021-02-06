@@ -24,6 +24,20 @@ const typeDefs = gql`
         creado: String
     }
 
+    type Cliente{
+        id: ID
+        nombre: String
+        apellido: String
+        fechaNac: String
+        telefono: String
+        medicacion: String
+        productos: String
+        unas: String
+        cabello: String
+        cueroCab: String
+        creado: String
+    }
+
     input UsuarioInput {
         nombre: String!
         apellido: String!
@@ -40,6 +54,18 @@ const typeDefs = gql`
         nombre: String!
         stock: Int!
         precio: Float!
+    }
+
+    input ClienteInput{
+        nombre: String!
+        apellido: String!
+        fechaNac: String!
+        telefono: String!
+        medicacion: String
+        productos: String
+        unas: String
+        cabello: String
+        cueroCab: String
     }
 
     type Query {
@@ -60,6 +86,9 @@ const typeDefs = gql`
         nuevoProducto(input: ProductoInput): Producto
         actualizarProducto(id:ID!, input:ProductoInput): Producto
         eliminarProducto(id:ID!): String
+
+        #Clientes
+        nuevoCliente(input: ClienteInput): Cliente
     }
 `;
 
