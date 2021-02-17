@@ -33,7 +33,7 @@ const resolvers = {
             }
         },
 
-        obtenerProducto: async(_, {id}) =>{
+        obtenerProducto: async(_, {id}) => {
             //revisar si producto existe
             const producto = await Producto.findById(id);
             if (!producto){
@@ -41,8 +41,41 @@ const resolvers = {
             }
 
             return producto;
-        }
+        },
 
+        obtenerClientes: async() => {
+            try {
+                const clientes = await Cliente.find({});
+                return clientes;
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        obtenerClientesUsuario: async (_, {}, ctx) => {
+            try {
+                const clientes = await Cliente.find({usuarioAlta: ctx.usuario.id.toString() });
+                return clientes;
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        obtenerCliente: async(_, {id}, ctx) => {
+            const cliente = await Cliente.findById(id);
+            
+            //Verificar que el cliente exista
+            if (!cliente){
+                throw new Error('Cliente no encontrado');
+            } 
+
+            //Quien lo crea solo puede acceder (opcional)
+            if (cliente.usuarioAlta.toString() !== ctx.usuario.id ) {
+                throw new Error('No tienes acceso para ver el cliente');
+            }
+
+            return cliente;
+        }
     },
 
     Mutation: {
@@ -138,10 +171,12 @@ const resolvers = {
             return "El producto ha sido eliminado";
         },
 
-        nuevoCliente: async(_, {input}) => {
-            //revisar si cliente ya existe
-            
+        nuevoCliente: async(_, {input}, ctx) => {
+
+            //console.log(ctx);
             const {nombre, apellido} = input;
+
+            //revisar si cliente ya existe          
             const existeCliente = await Cliente.findOne({nombre, apellido});
             if (existeCliente) {
                 throw new Error('El cliente ya esta registrado');
@@ -150,14 +185,49 @@ const resolvers = {
             //guardar en db
             try {
                 const nuevoCliente = new Cliente(input);
+                nuevoCliente.usuarioAlta = ctx.usuario.id;
                 const resultado = nuevoCliente.save();
 
                 return resultado;
             } catch (error) {
                 console.log(error);
             }
-        }
+        },
 
+        actualizarCliente: async(_, {id, input}, ctx) => {
+            //Verificar si existe
+            let cliente = await Cliente.findById(id);
+            if (!cliente) {
+                throw new Error('El cliente no existe');
+            }
+
+            //Verificar si el usuario que lo dio de alta edita
+            if (cliente.usuarioAlta.toString() !== ctx.usuario.id ) {
+                throw new Error('No tienes acceso para ver el cliente');
+            }
+
+            //guardar el cliente
+            cliente = await Cliente.findOneAndUpdate({_id: id}, input, {new: true});
+
+            return cliente;
+        },
+        
+        eliminarCliente: async(_, {id}, ctx) => {
+            //Verificar si existe
+            let cliente = await Cliente.findById(id);
+            if (!cliente) {
+                throw new Error('El cliente no existe');
+            }
+
+            //Verificar si el usuario que lo dio de alta edita
+            if (cliente.usuarioAlta.toString() !== ctx.usuario.id ) {
+                throw new Error('No tienes acceso para ver el cliente');
+            }
+
+            //Eliminar Cliente
+            await Cliente.findByIdAndDelete({_id: id});
+            return "El cliente ha sido eliminado"
+        }
 
     }
 }
