@@ -16,6 +16,16 @@ const ProductosSchema = mongoose.Schema({
         require: true,
         trim: true
     },
+    marca: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    proveedor: {
+        type: String,
+        required: true,
+        trim: true
+    },
     creado: {
         type: Date,
         default: Date.now()
