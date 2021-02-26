@@ -43,6 +43,21 @@ const typeDefs = gql`
         usuarioAlta: ID
     }
 
+    type Pedido{
+        id: ID
+        pedido: [PedidoGrupo]
+        total: Float
+        cliente: ID
+        usuarioAlta: ID
+        fecha: String
+        estado: EstadoPedido
+    }
+
+    type PedidoGrupo{
+        id: ID
+        cantidad: Int
+    }
+
     #Inputs
 
     input UsuarioInput {
@@ -77,6 +92,26 @@ const typeDefs = gql`
         cueroCab: String
     }
 
+    input PedidoProductoInput{
+        id: ID
+        cantidad: Int
+    }
+
+    enum EstadoPedido {
+        Pendiente
+        Completado
+        Cancelado 
+    }
+
+    input PedidoInput{
+        pedido: [PedidoProductoInput]
+        total: Float!
+        cliente: ID
+        estado: EstadoPedido
+    } 
+
+    #Querys
+
     type Query {
         #Usuarios
         obtenerUsuario(token: String!): Usuario
@@ -90,6 +125,8 @@ const typeDefs = gql`
         obtenerClientesUsuario: [Cliente]
         obtenerCliente(id: ID!): Cliente
     }
+
+    #Mutations
 
     type Mutation {
         #Usuarios
@@ -105,6 +142,9 @@ const typeDefs = gql`
         nuevoCliente(input: ClienteInput): Cliente
         actualizarCliente(id: ID!, input: ClienteInput): Cliente
         eliminarCliente(id: ID!): String
+
+        #Pedidos
+        nuevoPedido(input: PedidoInput): Pedido
     }
 `;
 

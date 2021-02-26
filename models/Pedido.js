@@ -32,4 +32,4 @@ const PedidoSchema = mongoose.Schema({
 });
 
 
-module.exports = mongoose.model('Pedido', PedidosSchema);
+module.exports = mongoose.model('Pedido', PedidoSchema);
