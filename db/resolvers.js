@@ -1,8 +1,10 @@
 const Usuario = require('../models/Usuario');
 const Producto = require('../models/Producto');
 const Cliente = require('../models/Cliente');
+const Pedido = require('../models/Pedido');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+
 require('dotenv').config({ path: 'variables.env'});
 
 
@@ -41,8 +43,59 @@ const resolvers = {
             }
 
             return producto;
-        }
+        },
 
+        obtenerClientes: async() => {
+            try {
+                const clientes = await Cliente.find({});
+                return clientes;
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        obtenerClientesUsuario: async (_, {}, ctx) => {
+            try {
+                const clientes = await Cliente.find({usuarioAlta: ctx.usuario.id.toString() });
+                return clientes;
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        obtenerCliente: async(_, {id}, ctx) => {
+            const cliente = await Cliente.findById(id);
+            
+            //Verificar que el cliente exista
+            if (!cliente){
+                throw new Error('Cliente no encontrado');
+            } 
+
+            //Quien lo crea solo puede acceder (opcional)
+            if (cliente.usuarioAlta.toString() !== ctx.usuario.id ) {
+                throw new Error('No tienes acceso para ver el cliente');
+            }
+
+            return cliente;
+        },
+
+        obtenerPedidos: async() => {
+            try {
+                const pedidos  = await Pedido.find({});
+                return pedidos;
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        obtenerPedidosUsuario: async(_, {}, ctx) => {
+            try {
+                const pedidos  = await Pedido.find({usuarioAlta: ctx.usuario.id});
+                return pedidos;
+            } catch (error) {
+                console.log(error);
+            }
+        }
     },
 
     Mutation: {
@@ -156,7 +209,8 @@ const resolvers = {
             } catch (error) {
                 console.log(error);
             }
-        }
+        },
+        
 
 
     }

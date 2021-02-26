@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const ClientesSchema = mongoose.Schema({
+const ClienteSchema = mongoose.Schema({
     nombre: {
         type: String,
         required: true,
@@ -10,7 +10,8 @@ const ClientesSchema = mongoose.Schema({
         type: String,
         required: true,
         trim: true
-    },fechaNac: {
+    },
+    fechaNac: {
         type: String,
         required: true,
         trim: true
@@ -20,6 +21,8 @@ const ClientesSchema = mongoose.Schema({
         required: true,
         trim: true
     },
+    /*
+    //Estos campos seguramente van en otro modelo
     medicacion: {
         type: String,
         trim: true
@@ -40,12 +43,22 @@ const ClientesSchema = mongoose.Schema({
         type: String,
         trim: true
     },
+    */
     creado: {
         type: Date,
         default: Date.now()
-    }/*,
-    //Esto por el momento no es necesario,
-    //Se deja a modo de ejemplo
+    },
+    usuarioAlta: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'Usuario'
+    }
+
+    /*,
+    Esto por el momento no es necesario,
+    Se deja a modo de ejemplo
+    Permite saber que usuario dio de alta al cliente
+    
     usuarioAlta: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -56,4 +69,4 @@ const ClientesSchema = mongoose.Schema({
 });
 
 
-module.exports = mongoose.model('Cliente', ClientesSchema);
+module.exports = mongoose.model('Cliente', ClienteSchema);
