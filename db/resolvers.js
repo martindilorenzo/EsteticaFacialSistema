@@ -35,7 +35,7 @@ const resolvers = {
             }
         },
 
-        obtenerProducto: async(_, {id}) =>{
+        obtenerProducto: async(_, {id}) => {
             //revisar si producto existe
             const producto = await Producto.findById(id);
             if (!producto){
@@ -191,10 +191,12 @@ const resolvers = {
             return "El producto ha sido eliminado";
         },
 
-        nuevoCliente: async(_, {input}) => {
-            //revisar si cliente ya existe
-            
+        nuevoCliente: async(_, {input}, ctx) => {
+
+            //console.log(ctx);
             const {nombre, apellido} = input;
+
+            //revisar si cliente ya existe          
             const existeCliente = await Cliente.findOne({nombre, apellido});
             if (existeCliente) {
                 throw new Error('El cliente ya esta registrado');
@@ -203,6 +205,7 @@ const resolvers = {
             //guardar en db
             try {
                 const nuevoCliente = new Cliente(input);
+                nuevoCliente.usuarioAlta = ctx.usuario.id;
                 const resultado = nuevoCliente.save();
 
                 return resultado;
@@ -302,7 +305,6 @@ const resolvers = {
                 console.log(error);
             }
         }         
-
 
     }
 }

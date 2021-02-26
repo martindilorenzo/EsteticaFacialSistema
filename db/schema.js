@@ -4,6 +4,8 @@ const {gql} = require('apollo-server');
 //schema
 const typeDefs = gql`
 
+    #Types
+
     type Usuario {
         id: ID
         nombre: String
@@ -21,6 +23,8 @@ const typeDefs = gql`
         nombre: String
         stock: Int
         precio: Float
+        marca: String
+        proveedor: String
         creado: String
     }
 
@@ -30,12 +34,13 @@ const typeDefs = gql`
         apellido: String
         fechaNac: String
         telefono: String
-        medicacion: String
-        productos: String
-        unas: String
-        cabello: String
-        cueroCab: String
+        #medicacion: String
+        #productos: String
+        #unas: String
+        #cabello: String
+        #cueroCab: String
         creado: String
+        usuarioAlta: ID
     }
 
     type Pedido{
@@ -47,7 +52,7 @@ const typeDefs = gql`
         fecha: String
         estado: EstadoPedido
     }
-    
+
     type PedidoGrupo{
         id: ID
         cantidad: Int
@@ -71,13 +76,15 @@ const typeDefs = gql`
         nombre: String!
         stock: Int!
         precio: Float!
+        marca: String!
+        proveedor: String!
     }
 
     input ClienteInput{
         nombre: String!
         apellido: String!
-        fechaNac: String!
-        telefono: String!
+        fechaNac: String
+        telefono: String
         medicacion: String
         productos: String
         unas: String
@@ -121,6 +128,7 @@ const typeDefs = gql`
         #Pedidos
         obtenerPedidos: [Pedido]
         obtenerPedidosUsuario: [Pedido]
+
     }
 
     #Mutations
