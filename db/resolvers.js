@@ -210,7 +210,98 @@ const resolvers = {
                 console.log(error);
             }
         },
+
+        actualizarCliente: async(_, {id, input}, ctx) => {
+            //Verificar si existe
+            let cliente = await Cliente.findById(id);
+            if (!cliente) {
+                throw new Error('El cliente no existe');
+            }
+
+            //Verificar si el usuario que lo dio de alta edita
+            if (cliente.usuarioAlta.toString() !== ctx.usuario.id ) {
+                throw new Error('No tienes acceso para ver el cliente');
+            }
+
+            //guardar el cliente
+            cliente = await Cliente.findOneAndUpdate({_id: id}, input, {new: true});
+
+            return cliente;
+        },
         
+        eliminarCliente: async(_, {id}, ctx) => {
+            //Verificar si existe
+            let cliente = await Cliente.findById(id);
+            if (!cliente) {
+                throw new Error('El cliente no existe');
+            }
+
+            //Verificar si el usuario que lo dio de alta edita
+            if (cliente.usuarioAlta.toString() !== ctx.usuario.id ) {
+                throw new Error('No tienes acceso para ver el cliente');
+            }
+
+            //Eliminar Cliente
+            await Cliente.findByIdAndDelete({_id: id});
+            return "El cliente ha sido eliminado"
+        },
+
+        nuevoPedido: async(_, {input}, ctx) => {
+
+            const { cliente } = input;
+            //Verificar si cliente existe
+            let clienteExiste = await Cliente.findById(cliente);
+            if (!clienteExiste) {
+                throw new Error('El cliente no existe');
+            }
+
+            //Verificar si cliente fue dado de alta por usuario logueado
+            if (clienteExiste.usuarioAlta.toString() !== ctx.usuario.id ) {
+                throw new Error('No tienes acceso para ver el cliente');
+            }
+
+            //revisar stock disponible
+            for await (const articulo of input.pedido) {
+                const {id} = articulo;
+                const producto = await Producto.findById(id);
+                if (articulo.cantidad > producto.stock) {
+                    throw new Error(`El articulo ${producto.nombre} no tiene suficiente stock. Hay disponibles ${producto.stock} unidades.`);
+                } else {
+                    producto.stock = producto.stock - articulo.cantidad;
+
+                    await producto.save();
+                }
+                
+            }
+            //crear nuevo pedido
+            const nuevoPedido = new Pedido(input);
+            
+            //asignarle usuario
+            nuevoPedido.usuarioAlta = ctx.usuario.id;
+
+            //guardar en db
+            const resultado = await nuevoPedido.save();
+            return resultado;
+            
+        },
+
+        obtenerPedidos: async() => {
+            try {
+                const pedidos  = await Pedido.find({});
+                return pedidos;
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        obtenerPedidosUsuario: async(_, {}, ctx) => {
+            try {
+                const pedidos  = await Pedido.find({usuarioAlta: ctx.usuario.id});
+                return pedidos;
+            } catch (error) {
+                console.log(error);
+            }
+        }         
 
 
     }
