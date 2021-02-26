@@ -77,6 +77,24 @@ const resolvers = {
             }
 
             return cliente;
+        },
+
+        obtenerPedidos: async() => {
+            try {
+                const pedidos  = await Pedido.find({});
+                return pedidos;
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        obtenerPedidosUsuario: async(_, {}, ctx) => {
+            try {
+                const pedidos  = await Pedido.find({usuarioAlta: ctx.usuario.id});
+                return pedidos;
+            } catch (error) {
+                console.log(error);
+            }
         }
     },
 
@@ -268,7 +286,25 @@ const resolvers = {
             const resultado = await nuevoPedido.save();
             return resultado;
             
-        }   
+        },
+
+        obtenerPedidos: async() => {
+            try {
+                const pedidos  = await Pedido.find({});
+                return pedidos;
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        obtenerPedidosUsuario: async(_, {}, ctx) => {
+            try {
+                const pedidos  = await Pedido.find({usuarioAlta: ctx.usuario.id});
+                return pedidos;
+            } catch (error) {
+                console.log(error);
+            }
+        }         
 
     }
 }
