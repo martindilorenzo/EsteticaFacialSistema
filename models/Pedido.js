@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const PedidoSchema = mongoose.Schema({
-    pedido: {
+    productos: {
         type: Array,
         required: true
     },

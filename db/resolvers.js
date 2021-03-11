@@ -95,7 +95,40 @@ const resolvers = {
             } catch (error) {
                 console.log(error);
             }
-        }
+        },
+        
+        obtenerPedidos: async() => {
+            try {
+                const pedidos  = await Pedido.find({});
+                return pedidos;
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        obtenerPedidosUsuario: async(_, {}, ctx) => {
+            try {
+                const pedidos  = await Pedido.find({usuarioAlta: ctx.usuario.id});
+                return pedidos;
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        obtenerPedido: async(_, {id}, ctx) => {
+            //verificar si existe pedido
+            const pedido = await Pedido.findById(id);
+            if (!pedido){
+                throw new Error('Pedido no encotrado');
+            }
+
+            //Verificar el usuario que realizo el pedido
+            if (pedido.usuarioAlta.toString() !== ctx.usuario.id) {
+                throw new Error('No tienes los permisos');
+            }
+            
+            return pedido;   
+        } 
     },
 
     Mutation: {
@@ -264,14 +297,13 @@ const resolvers = {
             }
 
             //revisar stock disponible
-            for await (const articulo of input.pedido) {
-                const {id} = articulo;
+            for await (const productoPedido of input.productos) {
+                const {id} = productoPedido;
                 const producto = await Producto.findById(id);
-                if (articulo.cantidad > producto.stock) {
-                    throw new Error(`El articulo ${producto.nombre} no tiene suficiente stock. Hay disponibles ${producto.stock} unidades.`);
+                if (productoPedido.cantidad > producto.stock) {
+                    throw new Error(`El producto ${producto.nombre} no tiene suficiente stock. Hay disponibles ${producto.stock} unidades.`);
                 } else {
-                    producto.stock = producto.stock - articulo.cantidad;
-
+                    producto.stock = producto.stock - productoPedido.cantidad;
                     await producto.save();
                 }
                 
@@ -287,24 +319,67 @@ const resolvers = {
             return resultado;
             
         },
+        
+        actualizarPedido: async(_, {id, input}, ctx) => {
 
-        obtenerPedidos: async() => {
-            try {
-                const pedidos  = await Pedido.find({});
-                return pedidos;
-            } catch (error) {
-                console.log(error);
+            const {cliente} = input;
+
+            //Verificar si el pedido existe
+            const existePedido = await Pedido.findById(id);
+            if (!existePedido) {
+                throw new Error('El pedido no existe');
             }
+
+            //Verificar si el cliente existe
+            const existeCliente = await Cliente.findById(cliente);
+            if (!existeCliente) {
+                throw new Error('El cliente no existe');
+            }
+
+            //Si el cliente y pedido pertenecen al usuario
+            if (existeCliente.usuarioAlta.toString() !== ctx.usuario.id ) {
+                throw new Error('No tienes acceso para ver el cliente');
+            }
+
+            //Revisar el stock
+            let index = 0;
+            for await (const productoPedido of input.productos) {
+                console.log(existePedido.productos[index].cantidad);
+                const {id} = productoPedido;
+                const producto = await Producto.findById(id);
+                if (productoPedido.cantidad > producto.stock + existePedido.productos[index].cantidad) {
+                    throw new Error(`El productoPedido ${producto.nombre} no tiene suficiente stock. Hay disponibles ${producto.stock} unidades.`);
+                } else {
+                    
+                    producto.stock = producto.stock + existePedido.productos[index].cantidad - productoPedido.cantidad;
+                    await producto.save();
+                }                
+            }
+
+            //Guardar el pedido
+            const resultado = await Pedido.findOneAndUpdate({_id: id}, input, {new: true});
+            return resultado;
+
+
         },
 
-        obtenerPedidosUsuario: async(_, {}, ctx) => {
-            try {
-                const pedidos  = await Pedido.find({usuarioAlta: ctx.usuario.id});
-                return pedidos;
-            } catch (error) {
-                console.log(error);
+        eliminarPedido: async(_, {id}, ctx) => {
+            //Verificar si el pedido existe
+            const existePedido = await Pedido.findById(id);
+            if (!existePedido){
+                throw new Error('El pedido no existe');
             }
-        }         
+
+            //Verificar si el usuario que lo dio de alta ees quien lo elimina
+            if (existePedido.usuarioAlta.toString() !== ctx.usuario.id) {
+                throw new Error('No tienes acceso a eliminar el pedido');
+            }
+
+            //Eliminar el pedido
+            await Pedido.findOneAndDelete({_id: id});
+
+            return "Pedido Eliminado"
+        }
 
     }
 }

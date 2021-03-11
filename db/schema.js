@@ -45,7 +45,7 @@ const typeDefs = gql`
 
     type Pedido{
         id: ID
-        pedido: [PedidoGrupo]
+        productos: [ProductoPedido]
         total: Float
         cliente: ID
         usuarioAlta: ID
@@ -53,7 +53,7 @@ const typeDefs = gql`
         estado: EstadoPedido
     }
 
-    type PedidoGrupo{
+    type ProductoPedido{
         id: ID
         cantidad: Int
     }
@@ -104,8 +104,8 @@ const typeDefs = gql`
     }
 
     input PedidoInput{
-        pedido: [PedidoProductoInput]
-        total: Float!
+        productos: [PedidoProductoInput]
+        total: Float
         cliente: ID
         estado: EstadoPedido
     } 
@@ -128,6 +128,7 @@ const typeDefs = gql`
         #Pedidos
         obtenerPedidos: [Pedido]
         obtenerPedidosUsuario: [Pedido]
+        obtenerPedido(id: ID!): Pedido
 
     }
 
@@ -150,6 +151,8 @@ const typeDefs = gql`
 
         #Pedidos
         nuevoPedido(input: PedidoInput): Pedido
+        actualizarPedido(id: ID!, input: PedidoInput): Pedido
+        eliminarPedido(id: ID!): String
     }
 `;
 
