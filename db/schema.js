@@ -58,6 +58,16 @@ const typeDefs = gql`
         cantidad: Int
     }
 
+    type ClienteTop {
+        total: Float
+        cliente: [Cliente]
+    }
+
+    type VendedorTop {
+        total: Float
+        vendedor: [Usuario]
+    }
+
     #Inputs
 
     input UsuarioInput {
@@ -98,9 +108,9 @@ const typeDefs = gql`
     }
 
     enum EstadoPedido {
-        Pendiente
-        Completado
-        Cancelado 
+        PENDIENTE
+        COMPLETADO
+        CANCELADO 
     }
 
     input PedidoInput{
@@ -129,6 +139,11 @@ const typeDefs = gql`
         obtenerPedidos: [Pedido]
         obtenerPedidosUsuario: [Pedido]
         obtenerPedido(id: ID!): Pedido
+        obtenerPedidosEstado(estado: String!): [Pedido]
+
+        #Busquedas Avanzadas
+        mejoresClientes: [ClienteTop]
+        mejoresVendedores: [VendedorTop]
 
     }
 

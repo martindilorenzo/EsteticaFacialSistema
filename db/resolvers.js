@@ -128,7 +128,54 @@ const resolvers = {
             }
             
             return pedido;   
-        } 
+        },
+
+        obtenerPedidosEstado: async(_, {estado}, ctx) => {
+            const pedidos = await Pedido.find({usuarioAlta: ctx.usuario.id, estado});
+            
+            return pedidos;
+        },
+        
+        mejoresClientes: async() => {
+            const clientes = await Pedido.aggregate([
+                { $match: {estado: "COMPLETADO"} },
+                { $group: {
+                    _id: "$cliente",
+                    total: {$sum: '$total' }
+                }},
+                {
+                    $lookup: {
+                        from: 'clientes',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'cliente'
+                    }
+                },
+                {
+                    $sort: { total: -1 }
+                }
+            ]);
+
+            return clientes;
+        },
+
+        mejoresVendedores: async () => {
+            const vendedores = await Pedido.aggregate([
+                { $match : {estado: "COMPLETADO"}},
+                { $group : { 
+                    _id: "usuarioAlta",
+                    total: {$sum: '$total'} 
+                }},
+                {
+                    $lookup: {
+                        from: 'usuarios',
+                        localField: '_id',
+                        foreignField: '_id',
+                        
+                    }
+                }
+            ])
+        }
     },
 
     Mutation: {
@@ -370,7 +417,7 @@ const resolvers = {
                 throw new Error('El pedido no existe');
             }
 
-            //Verificar si el usuario que lo dio de alta ees quien lo elimina
+            //Verificar si el usuario que lo dio de alta es quien lo elimina
             if (existePedido.usuarioAlta.toString() !== ctx.usuario.id) {
                 throw new Error('No tienes acceso a eliminar el pedido');
             }
